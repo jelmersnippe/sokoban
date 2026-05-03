@@ -24,7 +24,6 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif()
 
 # Our Project
-
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
     src/main.cpp
@@ -35,6 +34,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:${PROJECT_NAME}>/res)
+
 
 # Web Configurations
 if (${PLATFORM} STREQUAL "Web")

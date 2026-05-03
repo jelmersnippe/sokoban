@@ -7,21 +7,52 @@
 #include <fstream>
 #include <ios>
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 
-namespace fs = std::filesystem;
+struct ColorHash {
+    std::size_t operator()(const Color& c) const {
+        return (c.r << 24) | (c.g << 16) | (c.b << 8) | c.a;
+    }
+};
 
-void parse_level_file(const std::string& filename) {
-    Image image = LoadImage(filename.c_str()); // Loaded in CPU memory (RAM)
+struct ColorEqual {
+    bool operator()(const Color& a, const Color& b) const {
+        return a.r == b.r &&
+               a.g == b.g &&
+               a.b == b.b &&
+               a.a == b.a;
+    }
+};
+
+enum class TileType {
+    Floor,
+    Wall,
+    Player,
+    Box,
+    Destination,
+    BoxOnDestination
+};
+
+static const std::unordered_map<Color, TileType, ColorHash, ColorEqual> color_map = {
+    {Color{255,255,255,255}, TileType::Floor},
+    {Color{0,0,0,255}, TileType::Wall},
+    {Color{34,177,76,255}, TileType::Player},
+    {Color{185,122,87,255}, TileType::Box},
+    {Color{237,28,36,255}, TileType::Destination},
+    {Color{66,44,31,255}, TileType::BoxOnDestination},
+};
+
+Level parse_level_file(const std::string& filename) {
+    Image image = LoadImage(filename.c_str());
     const int image_size = image.width * image.height;
 
     Color* colors = LoadImageColors(image);
 
     for (int i = 0; i < image_size; i++) {
-        const Color color = colors[i];
+        Color color = colors[i];
 
-        std::cout << "Found color: (" << color.r << ", " << color.g << ", " << color.b << ", " << color.a << ")"
-                  << std::endl;
+       const FloorType type = color_map.find(color);
     }
 
     UnloadImageColors(colors);
@@ -29,19 +60,16 @@ void parse_level_file(const std::string& filename) {
 }
 
 std::vector<Level> LoadLevels() {
-    const fs::path target_path{"./levels"};
+    const std::filesystem::path target_path{"res/levels"};
 
     try {
-        for (std::filesystem::directory_entry const& dir_entry : fs::directory_iterator{target_path}) {
-            if (!fs::is_regular_file(dir_entry.path())) { continue; }
+        for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator{target_path}) {
+            if (!std::filesystem::is_regular_file(dir_entry.path())) { continue; }
 
-            auto file = dir_entry.path();
-            auto filename = file.filename();
-            std::cout << filename << std::endl;
-            std::cout << filename.root_path() << std::endl;
-            parse_level_file(filename);
+            auto path = dir_entry.path();
+            parse_level_file(path.string());
         }
-    } catch (fs::filesystem_error const& ex) {
+    } catch (std::filesystem::filesystem_error const& ex) {
         std::cout << "Error occured during file operation!\n" << ex.what() << std::endl;
     }
 
