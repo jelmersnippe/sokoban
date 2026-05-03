@@ -34,43 +34,6 @@ std::vector<Point> GetDestinations(const Level& level) {
     return destinations;
 };
 
-const Level level1 = {
-    .index = 0,
-    .size = {.width = 8, .height = 9},
-    .layout =
-        {
-            {FloorType::None, FloorType::None, FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid,
-             FloorType::Solid, FloorType::None},
-            {FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::None, FloorType::None, FloorType::None,
-             FloorType::Solid, FloorType::None},
-            {FloorType::Solid, FloorType::Destination, FloorType::None, FloorType::None, FloorType::None,
-             FloorType::None, FloorType::Solid, FloorType::None},
-            {FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::None, FloorType::None,
-             FloorType::Destination, FloorType::Solid, FloorType::None},
-            {FloorType::Solid, FloorType::Destination, FloorType::Solid, FloorType::Solid, FloorType::None,
-             FloorType::None, FloorType::Solid, FloorType::None},
-            {FloorType::Solid, FloorType::None, FloorType::Solid, FloorType::None, FloorType::Destination,
-             FloorType::None, FloorType::Solid, FloorType::Solid},
-            {FloorType::Solid, FloorType::None, FloorType::None, FloorType::Destination, FloorType::None,
-             FloorType::None, FloorType::Destination, FloorType::Solid},
-            {FloorType::Solid, FloorType::None, FloorType::None, FloorType::None, FloorType::Destination,
-             FloorType::None, FloorType::None, FloorType::Solid},
-            {FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid,
-             FloorType::Solid, FloorType::Solid},
-        },
-    .boxes =
-        {
-            {.x = 3, .y = 2},
-            {.x = 4, .y = 3},
-            {.x = 4, .y = 4},
-            {.x = 1, .y = 6},
-            {.x = 3, .y = 6},
-            {.x = 4, .y = 6},
-            {.x = 5, .y = 6},
-        },
-    .player = {.x = 2, .y = 2},
-};
-
 struct GameState {
     float timeSinceLastTick = 0;
     Level levelConfiguration;
@@ -217,7 +180,7 @@ int main() {
     std::vector<Level> levels = LoadLevels();
 
     GameState state;
-    LoadLevel(level1, state);
+    LoadLevel(levels[0], state);
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
 

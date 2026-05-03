@@ -19,7 +19,7 @@ struct Level {
     Size size = {.width = 0, .height = 0};
     std::vector<std::vector<FloorType>> layout = {{}};
     std::vector<Point> boxes;
-    Point player;
+    Point player = {.x = 0, .y = 0};
 };
 
 std::vector<Level> LoadLevels();
