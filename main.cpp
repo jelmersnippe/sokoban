@@ -2,207 +2,250 @@
 
 #include <algorithm>
 #include <ctime>
-#include <deque>
+#include <vector>
 
-enum Direction {
-    Up,
-    Right,
-    Down,
-    Left
+using std::find;
+
+const int TARGET_FPS = 60;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+const int TICKS_PER_SECOND = 60;
+const float TICK_TIME = 1.0 / 60;
+
+const int TILE_SIZE = 50;
+
+const Color WALL_COLOR = {.r = 90, .g = 90, .b = 90, .a = 255};
+const Color FLOOR_COLOR = {.r = 170, .g = 150, .b = 100, .a = 255};
+const Color BOX_COLOR = {.r = 185, .g = 115, .b = 40, .a = 255};
+const Color BOX_ON_DESTINATION_COLOR = {.r = 85, .g = 55, .b = 20, .a = 255};
+const Color DESTINATION_COLOR = RED;
+const Color PLAYER_COLOR = GREEN;
+
+enum class FloorType {
+    None,
+    Solid,
+    Destination,
 };
 
-struct GridPoint {
-    int x, y;
+struct Size {
+    int width = 0;
+    int height = 0;
+};
+struct Point {
+    int x = 0;
+    int y = 0;
 };
 
-struct Segment {
-    GridPoint position;
+struct Level {
+    int index = 0;
+    Size size = {.width = 0, .height = 0};
+    std::vector<std::vector<FloorType>> layout = {{}};
+    std::vector<Point> boxes;
+    Point player;
 };
 
-struct Snake {
-    Direction direction;
-    std::deque<Segment> segments;
+std::vector<Point> GetDestinations(const Level& level) {
+    std::vector<Point> destinations;
+
+    for (int y = 0; y < level.layout.size(); y++) {
+        const std::vector<FloorType> row = level.layout[y];
+
+        for (int x = 0; x < row.size(); x++) {
+            if (row[x] == FloorType::Destination) { destinations.push_back({.x = x, .y = y}); };
+        }
+    }
+
+    return destinations;
 };
 
-const int TICKS_PER_SECOND = 4;
-const float TICK_TIME = 1.0 / TICKS_PER_SECOND;
-const int SCREEN_WIDTH = 400;
-const int SCREEN_HEIGHT = 400;
-const int TILE_SIZE = 20;
-const int TILES_IN_WIDTH = SCREEN_WIDTH / TILE_SIZE;
-const int TILES_IN_HEIGHT = SCREEN_HEIGHT / TILE_SIZE;
+const Level level1 = {
+    .index = 0,
+    .size = {.width = 8, .height = 9},
+    .layout =
+        {
+            {FloorType::None, FloorType::None, FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid,
+             FloorType::Solid, FloorType::None},
+            {FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::None, FloorType::None, FloorType::None,
+             FloorType::Solid, FloorType::None},
+            {FloorType::Solid, FloorType::Destination, FloorType::None, FloorType::None, FloorType::None,
+             FloorType::None, FloorType::Solid, FloorType::None},
+            {FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::None, FloorType::None,
+             FloorType::Destination, FloorType::Solid, FloorType::None},
+            {FloorType::Solid, FloorType::Destination, FloorType::Solid, FloorType::Solid, FloorType::None,
+             FloorType::None, FloorType::Solid, FloorType::None},
+            {FloorType::Solid, FloorType::None, FloorType::Solid, FloorType::None, FloorType::Destination,
+             FloorType::None, FloorType::Solid, FloorType::Solid},
+            {FloorType::Solid, FloorType::None, FloorType::None, FloorType::Destination, FloorType::None,
+             FloorType::None, FloorType::Destination, FloorType::Solid},
+            {FloorType::Solid, FloorType::None, FloorType::None, FloorType::None, FloorType::Destination,
+             FloorType::None, FloorType::None, FloorType::Solid},
+            {FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid, FloorType::Solid,
+             FloorType::Solid, FloorType::Solid},
+        },
+    .boxes =
+        {
+            {.x = 3, .y = 2},
+            {.x = 4, .y = 3},
+            {.x = 4, .y = 4},
+            {.x = 1, .y = 6},
+            {.x = 3, .y = 6},
+            {.x = 4, .y = 6},
+            {.x = 5, .y = 6},
+        },
+    .player = {.x = 2, .y = 2},
+};
 
 struct GameState {
-    double timeSinceLastTick = 0;
-    Direction desiredDirection = Up;
-    Snake snake;
-    GridPoint applePosition;
-    bool gameOver;
+    float timeSinceLastTick = 0;
+    Level levelConfiguration;
+    std::vector<Point> destinations;
+    std::vector<Point> boxPositions;
+    Point playerPosition;
+
+    Point desiredMove = {.x = 0, .y = 0};
 };
 
-Snake CreateSnake(int length) {
-    Snake snake;
-    snake.direction = Up;
-    snake.segments = std::deque<Segment>();
+enum class OccupiedType {
+    None,
+    Wall,
+    Box
+};
 
-    for (int i = 0; i < length; i++) {
-        Segment segment;
-        const int x = TILES_IN_WIDTH / 2;
-        const int y = (TILES_IN_HEIGHT / 2) + i;
-        segment.position.x = x;
-        segment.position.y = y;
-        snake.segments.push_back(segment);
-    }
+std::vector<std::vector<OccupiedType>> GetOccupiedGrid(const Level& level, const std::vector<Point>& boxes) {
+    std::vector<std::vector<OccupiedType>> occupiedGrid(
+        level.size.height, std::vector<OccupiedType>(level.size.width, OccupiedType::None));
 
-    return snake;
-}
+    for (int y = 0; y < level.layout.size(); y++) {
+        const std::vector<FloorType> row = level.layout[y];
 
-void DrawSnake(const Snake& snake) {
-    for (const Segment& segment : snake.segments) {
-        DrawRectangle(segment.position.x * TILE_SIZE, segment.position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, GREEN);
-    }
-}
-
-void DrawApple(const GridPoint& position) {
-    DrawRectangle(position.x * TILE_SIZE, position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, RED);
-}
-
-GridPoint GetApplePosition(GameState& state) {
-    int x = std::rand() % TILES_IN_WIDTH;
-    int y = std::rand() % TILES_IN_HEIGHT;
-
-    while (true) {
-        if (!std::any_of(state.snake.segments.begin(), state.snake.segments.end(),
-                         [&](const Segment& s) { return s.position.x == x && s.position.y == y; })) {
-            break;
-        }
-
-        x = std::rand() % TILES_IN_WIDTH;
-        y = std::rand() % TILES_IN_HEIGHT;
-    }
-
-    GridPoint point;
-    point.x = x;
-    point.y = y;
-    return point;
-}
-
-GridPoint GetDirection(const Direction& direction) {
-    switch (direction) {
-    case Up:
-        return {0, -1};
-    case Down:
-        return {0, 1};
-    case Right:
-        return {1, 0};
-    case Left:
-        return {-1, 0};
-    default:
-        return {0, 0};
-    }
-}
-
-bool isSameAxis(const Direction& direction, const Direction& otherDirection) {
-    return ((direction == Up || direction == Down) && (otherDirection == Up || otherDirection == Down)) ||
-           ((direction == Left || direction == Right) && (otherDirection == Left || otherDirection == Right));
-}
-
-void UpdateSnake(GameState& state) {
-    Direction decidedDirection =
-        isSameAxis(state.snake.direction, state.desiredDirection) ? state.snake.direction : state.desiredDirection;
-
-    const GridPoint direction = GetDirection(decidedDirection);
-    state.snake.direction = decidedDirection;
-
-    const Segment& head = state.snake.segments.front();
-
-    GridPoint newPosition = {head.position.x + direction.x, head.position.y + direction.y};
-
-    // Screen wrapping x
-    if (newPosition.x < 0) {
-        newPosition.x = TILES_IN_WIDTH - 1;
-    } else if (newPosition.x >= TILES_IN_WIDTH) {
-        newPosition.x = 0;
-    }
-
-    // Screen wrapping y
-    if (newPosition.y < 0) {
-        newPosition.y = TILES_IN_HEIGHT - 1;
-    } else if (newPosition.y >= TILES_IN_HEIGHT) {
-        newPosition.y = 0;
-    }
-
-    Segment newHead;
-    newHead.position.x = newPosition.x;
-    newHead.position.y = newPosition.y;
-
-    state.snake.segments.push_front(newHead);
-
-    if (newPosition.x == state.applePosition.x && newPosition.y == state.applePosition.y) {
-        state.applePosition = GetApplePosition(state);
-    } else {
-        state.snake.segments.pop_back();
-    }
-
-    for (int i = 1; i < state.snake.segments.size(); i++) {
-        const Segment& s = state.snake.segments[i];
-
-        if (s.position.x == newPosition.x && s.position.y == newPosition.y) {
-            state.gameOver = true;
-            break;
+        for (int x = 0; x < row.size(); x++) {
+            if (row[x] == FloorType::Solid) { occupiedGrid[y][x] = OccupiedType::Wall; }
         }
     }
+
+    for (Point position : boxes) {
+        occupiedGrid[position.y][position.x] = OccupiedType::Box;
+    }
+
+    return occupiedGrid;
 }
 
 void Update(GameState& state) {
+    // All boxes are on a destination
+    if (std::ranges::all_of(state.boxPositions, [&state](Point& box) {
+            return std::ranges::any_of(state.destinations, [&box](Point& destination) {
+                return box.x == destination.x && box.y == destination.y;
+            });
+        })) {
+        DrawText("You did it!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, BLACK);
+        return;
+    }
+
     state.timeSinceLastTick += GetFrameTime();
 
     if (state.timeSinceLastTick >= TICK_TIME) {
-        UpdateSnake(state);
-
+        std::vector<std::vector<OccupiedType>> occupiedGrid =
+            GetOccupiedGrid(state.levelConfiguration, state.boxPositions);
         state.timeSinceLastTick -= TICK_TIME;
-    }
-}
 
-void HandleInput(GameState& state) {
-    if (IsKeyPressed(KEY_UP)) {
-        state.desiredDirection = Up;
-    } else if (IsKeyPressed(KEY_DOWN)) {
-        state.desiredDirection = Down;
-    } else if (IsKeyPressed(KEY_RIGHT)) {
-        state.desiredDirection = Right;
-    } else if (IsKeyPressed(KEY_LEFT)) {
-        state.desiredDirection = Left;
+        Point desiredPosition = {.x = state.playerPosition.x + state.desiredMove.x,
+                                 .y = state.playerPosition.y + state.desiredMove.y};
+
+        switch (occupiedGrid[desiredPosition.y][desiredPosition.x]) {
+            case OccupiedType::None:
+                state.playerPosition = desiredPosition;
+                break;
+            case OccupiedType::Box: {
+                Point boxPushPosition = {.x = desiredPosition.x + state.desiredMove.x,
+                                         .y = desiredPosition.y + state.desiredMove.y};
+
+                if (occupiedGrid[boxPushPosition.y][boxPushPosition.x] == OccupiedType::None) {
+                    auto box = std::ranges::find_if(state.boxPositions, [desiredPosition](const Point& box) {
+                        return box.x == desiredPosition.x && box.y == desiredPosition.y;
+                    });
+                    box->x = boxPushPosition.x;
+                    box->y = boxPushPosition.y;
+                    state.playerPosition = desiredPosition;
+                }
+                break;
+            }
+            case OccupiedType::Wall:
+                break;
+        }
+
+        state.desiredMove = {.x = 0, .y = 0};
     }
-}
+};
 
 void Draw(const GameState& state) {
     BeginDrawing();
 
-    ClearBackground(LIGHTGRAY);
+    ClearBackground(FLOOR_COLOR);
 
-    DrawApple(state.applePosition);
-    DrawSnake(state.snake);
+    for (int y = 0; y < state.levelConfiguration.layout.size(); y++) {
+        const std::vector<FloorType> row = state.levelConfiguration.layout[y];
+
+        for (int x = 0; x < row.size(); x++) {
+            switch (row[x]) {
+                case FloorType::Solid:
+                    DrawRectangle(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, WALL_COLOR);
+                    break;
+                case FloorType::Destination:
+                    DrawCircle((x * TILE_SIZE) + (TILE_SIZE / 2), (y * TILE_SIZE) + (TILE_SIZE / 2), TILE_SIZE / 5.0,
+                               DESTINATION_COLOR);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    for (Point position : state.boxPositions) {
+        Color boxColor = BOX_COLOR;
+        if (state.levelConfiguration.layout[position.y][position.x] == FloorType::Destination) {
+            boxColor = BOX_ON_DESTINATION_COLOR;
+        }
+        DrawRectangle(position.x * TILE_SIZE, position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, boxColor);
+    }
+
+    DrawRectangle(state.playerPosition.x * TILE_SIZE, state.playerPosition.y * TILE_SIZE, TILE_SIZE, TILE_SIZE,
+                  PLAYER_COLOR);
 
     EndDrawing();
 }
 
-int main(void) {
-    std::srand(static_cast<unsigned>(time(nullptr)));
-
-    GameState state;
-    state.snake = CreateSnake(3);
-    state.desiredDirection = Up;
+void LoadLevel(const Level& level, GameState& state) {
+    state.levelConfiguration = level;
+    state.boxPositions = level.boxes;
+    state.destinations = GetDestinations(level);
+    state.playerPosition = level.player;
+    state.desiredMove = {.x = 0, .y = 0};
     state.timeSinceLastTick = 0;
-    state.gameOver = false;
-    GridPoint initialApplePosition = GetApplePosition(state);
-    state.applePosition = initialApplePosition;
+};
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Snek");
+void HandleInput(GameState& state) {
+    if (IsKeyPressed(KEY_UP)) {
+        state.desiredMove = {.x = 0, .y = -1};
+    } else if (IsKeyPressed(KEY_DOWN)) {
+        state.desiredMove = {.x = 0, .y = 1};
+    } else if (IsKeyPressed(KEY_RIGHT)) {
+        state.desiredMove = {.x = 1, .y = 0};
+    } else if (IsKeyPressed(KEY_LEFT)) {
+        state.desiredMove = {.x = -1, .y = 0};
+    }
 
-    SetTargetFPS(60);
+    if (IsKeyPressed(KEY_R)) { LoadLevel(state.levelConfiguration, state); };
+}
 
-    while (!WindowShouldClose() && !state.gameOver) {
+int main() {
+    GameState state;
+    LoadLevel(level1, state);
+
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
+
+    SetTargetFPS(TARGET_FPS);
+
+    while (!WindowShouldClose()) {
         HandleInput(state);
 
         Update(state);
