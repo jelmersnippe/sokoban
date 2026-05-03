@@ -180,7 +180,7 @@ int main() {
     std::vector<Level> levels = LoadLevels();
 
     GameState state;
-    LoadLevel(levels[1], state);
+    LoadLevel(levels[0], state);
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
 
