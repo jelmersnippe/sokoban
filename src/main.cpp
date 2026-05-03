@@ -6,8 +6,8 @@
 #include <vector>
 
 const int TARGET_FPS = 60;
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1440;
+const int SCREEN_HEIGHT = 1000;
 const int TICKS_PER_SECOND = 60;
 const float TICK_TIME = 1.0 / TICKS_PER_SECOND;
 
@@ -180,7 +180,7 @@ int main() {
     std::vector<Level> levels = LoadLevels();
 
     GameState state;
-    LoadLevel(levels[0], state);
+    LoadLevel(levels[1], state);
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
 
