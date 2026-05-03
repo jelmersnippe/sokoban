@@ -1,16 +1,15 @@
+#include "core/point.hpp"
+#include "level/level_loader.hpp"
 #include "raylib.h"
 
 #include <algorithm>
-#include <ctime>
 #include <vector>
-
-using std::find;
 
 const int TARGET_FPS = 60;
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int TICKS_PER_SECOND = 60;
-const float TICK_TIME = 1.0 / 60;
+const float TICK_TIME = 1.0 / TICKS_PER_SECOND;
 
 const int TILE_SIZE = 50;
 
@@ -20,29 +19,6 @@ const Color BOX_COLOR = {.r = 185, .g = 115, .b = 40, .a = 255};
 const Color BOX_ON_DESTINATION_COLOR = {.r = 85, .g = 55, .b = 20, .a = 255};
 const Color DESTINATION_COLOR = RED;
 const Color PLAYER_COLOR = GREEN;
-
-enum class FloorType {
-    None,
-    Solid,
-    Destination,
-};
-
-struct Size {
-    int width = 0;
-    int height = 0;
-};
-struct Point {
-    int x = 0;
-    int y = 0;
-};
-
-struct Level {
-    int index = 0;
-    Size size = {.width = 0, .height = 0};
-    std::vector<std::vector<FloorType>> layout = {{}};
-    std::vector<Point> boxes;
-    Point player;
-};
 
 std::vector<Point> GetDestinations(const Level& level) {
     std::vector<Point> destinations;
@@ -238,6 +214,8 @@ void HandleInput(GameState& state) {
 }
 
 int main() {
+    std::vector<Level> levels = LoadLevels();
+
     GameState state;
     LoadLevel(level1, state);
 

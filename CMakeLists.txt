@@ -4,7 +4,7 @@ project(sokoban)
 # Generate compile_commands.json
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wunused-value -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP")
 
 # Dependencies
 set(RAYLIB_VERSION 6.0)
@@ -25,7 +25,14 @@ endif()
 
 # Our Project
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE
+    src/main.cpp
+    src/level/level_loader.cpp
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib)
 
