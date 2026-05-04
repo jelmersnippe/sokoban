@@ -2,7 +2,6 @@
 
 #include "level_loader.hpp"
 #include <cstdio>
-#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -34,13 +33,13 @@ static const std::unordered_map<Color, TileType, ColorHash, ColorEqual> color_ma
     {Color{237, 28, 36, 255}, TileType::Destination}, {Color{66, 44, 31, 255}, TileType::BoxOnDestination},
 };
 
-int get_level_index(std::string filename) {
-    auto index_split_pos = filename.rfind("-");
+int get_level_index(const std::string& filename) {
+    const auto index_split_pos = filename.rfind('-');
 
     if (index_split_pos == std::string::npos) { throw "Invalid filename. Expect {}-{index}.png"; }
 
     auto last_part = filename.substr(index_split_pos + 1);
-    auto extension_split_pos = last_part.find(".");
+    const auto extension_split_pos = last_part.find('.');
 
     if (extension_split_pos == std::string::npos) { throw "Invalid filename. Expect {}-{index}.png"; };
 
@@ -110,8 +109,7 @@ std::vector<Level> LoadLevels() {
         for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator{target_path}) {
             if (!std::filesystem::is_regular_file(dir_entry.path())) { continue; }
 
-            auto path = dir_entry.path();
-            levels.push_back(parse_level_file(path.string()));
+            levels.push_back(parse_level_file(dir_entry.path().string()));
         }
     } catch (std::filesystem::filesystem_error const& ex) {
         std::cout << "Error occured during file operation!\n" << ex.what() << std::endl;

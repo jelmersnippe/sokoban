@@ -35,8 +35,8 @@ void HandleInput(GameState& state) {
 int main() {
     std::vector<Level> levels = LoadLevels();
 
-    const int index = 0;
-    auto it = std::ranges::find_if(levels, [](Level& level) { return level.index == index; });
+    const int index = 1;
+    const auto it = std::ranges::find_if(levels, [](const Level& level) { return level.index == index; });
 
     GameState state;
     LoadLevel(*it, state);

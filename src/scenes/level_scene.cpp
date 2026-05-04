@@ -14,14 +14,14 @@ enum class OccupiedType {
     Box
 };
 
-const int TILE_SIZE = 50;
+constexpr int TILE_SIZE = 50;
 
-const Color WALL_COLOR = {.r = 90, .g = 90, .b = 90, .a = 255};
-const Color FLOOR_COLOR = {.r = 170, .g = 150, .b = 100, .a = 255};
-const Color BOX_COLOR = {.r = 185, .g = 115, .b = 40, .a = 255};
-const Color BOX_ON_DESTINATION_COLOR = {.r = 85, .g = 55, .b = 20, .a = 255};
-const Color DESTINATION_COLOR = RED;
-const Color PLAYER_COLOR = GREEN;
+constexpr Color WALL_COLOR = {.r = 90, .g = 90, .b = 90, .a = 255};
+constexpr Color FLOOR_COLOR = {.r = 170, .g = 150, .b = 100, .a = 255};
+constexpr Color BOX_COLOR = {.r = 185, .g = 115, .b = 40, .a = 255};
+constexpr Color BOX_ON_DESTINATION_COLOR = {.r = 85, .g = 55, .b = 20, .a = 255};
+constexpr Color DESTINATION_COLOR = RED;
+constexpr Color PLAYER_COLOR = GREEN;
 
 std::vector<std::vector<OccupiedType>> GetOccupiedGrid(const Level& level, const std::vector<Point>& boxes) {
     std::vector<std::vector<OccupiedType>> occupiedGrid(
@@ -47,7 +47,7 @@ void UpdateLevelScene(GameState& state) {
 
     // All boxes are on a destination
     if (std::ranges::all_of(state.boxPositions, [&state](Point& box) {
-            return std::ranges::any_of(state.destinations, [&box](Point& destination) {
+            return std::ranges::any_of(state.destinations, [&box](const Point& destination) {
                 return box.x == destination.x && box.y == destination.y;
             });
         })) {
