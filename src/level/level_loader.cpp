@@ -5,6 +5,7 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -33,12 +34,30 @@ static const std::unordered_map<Color, TileType, ColorHash, ColorEqual> color_ma
     {Color{237, 28, 36, 255}, TileType::Destination}, {Color{66, 44, 31, 255}, TileType::BoxOnDestination},
 };
 
+int get_level_index(std::string filename) {
+    auto index_split_pos = filename.rfind("-");
+
+    if (index_split_pos == std::string::npos) { throw "Invalid filename. Expect {}-{index}.png"; }
+
+    auto last_part = filename.substr(index_split_pos + 1);
+    auto extension_split_pos = last_part.find(".");
+
+    if (extension_split_pos == std::string::npos) { throw "Invalid filename. Expect {}-{index}.png"; };
+
+    auto index = last_part.substr(extension_split_pos);
+
+    return std::stoi(index);
+};
+
 Level parse_level_file(const std::string& filename) {
     Image image = LoadImage(filename.c_str());
+    Texture2D texture = LoadTextureFromImage(image);
 
     Level level{};
+    level.index = get_level_index(filename);
     level.size = {.width = image.width, .height = image.height};
     level.layout = std::vector(image.height, std::vector(image.width, FloorType::None));
+    level.texture = texture;
 
     std::vector<std::vector<FloorType>> layout;
 

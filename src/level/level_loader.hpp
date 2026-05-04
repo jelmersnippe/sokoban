@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/point.hpp"
+#include "raylib.h"
 #include <vector>
 
 struct Size {
@@ -20,6 +21,7 @@ struct Level {
     std::vector<std::vector<FloorType>> layout = {{}};
     std::vector<Point> boxes;
     Point player = {.x = 0, .y = 0};
+    Texture2D texture;
 };
 
 std::vector<Level> LoadLevels();
