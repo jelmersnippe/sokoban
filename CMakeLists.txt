@@ -27,7 +27,9 @@ endif()
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
     src/main.cpp
+    src/game_state.cpp
     src/level/level_loader.cpp
+    src/scenes/level_scene.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
