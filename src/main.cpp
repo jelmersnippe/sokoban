@@ -1,14 +1,10 @@
 #include "core/globals.hpp"
 #include "game_state.hpp"
-#include "level/level_loader.hpp"
 #include "raylib.h"
 #include "scenes/level_scene.hpp"
 #include "scenes/level_select_scene.hpp"
 #include "scenes/menu_scene.hpp"
 #include "scenes/scenes.hpp"
-
-#include <algorithm>
-#include <vector>
 
 void Update(GameState& state) {
     state.timeSinceLastTick += GetFrameTime();
@@ -69,22 +65,14 @@ void HandleInput(GameState& state) {
 
 int main() {
     GameState state;
-    state.scene = Scene::Menu;
-
-    // TODO: Move into level select
-    std::vector<Level> levels = LoadLevels();
-
-    const int index = 1;
-    const auto it = std::ranges::find_if(levels, [](const Level& level) { return level.index == index; });
-
-    LoadLevel(*it, state);
+    state.scene = Scene::LevelSelect;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
     SetExitKey(KEY_NULL);
 
     SetTargetFPS(TARGET_FPS);
 
-    while (!state.should_exit) {
+    while (!state.should_exit && !WindowShouldClose()) {
         HandleInput(state);
 
         Update(state);

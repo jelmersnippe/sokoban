@@ -1,5 +1,6 @@
 #include "core/globals.hpp"
 #include "core/point.hpp"
+#include "core/utils.hpp"
 
 #include "game_state.hpp"
 #include "raylib.h"
@@ -23,13 +24,6 @@ const Rectangle quit_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x)
                                            .y = static_cast<float>(BUTTON_POS.y + (BUTTON_HEIGHT + BUTTON_GAP) * 2),
                                            .width = BUTTON_WIDTH,
                                            .height = BUTTON_HEIGHT};
-
-bool mouse_in_rect(const Rectangle& rect) {
-    const Vector2 mouse_pos = GetMousePosition();
-
-    return mouse_pos.x > rect.x && mouse_pos.x < rect.x + rect.width && mouse_pos.y > rect.y &&
-           mouse_pos.y < rect.y + rect.height;
-}
 
 void draw_button(const Rectangle& rect, const char* text) {
     const Color button_background = mouse_in_rect(rect) ? DARKGRAY : LIGHTGRAY;
