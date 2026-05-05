@@ -52,7 +52,7 @@ void HandleMenuSceneInput(GameState& state) {
         if (mouse_in_rect(level_select_rectangle)) {
             state.scene = Scene::LevelSelect;
         } else if (mouse_in_rect(game_rectangle)) {
-            state.scene = Scene::Level;
+            state.scene = state.level_state == LevelState::Finished ? Scene::LevelSelect : Scene::Level;
         } else if (mouse_in_rect(quit_rectangle)) {
             state.should_exit = true;
         }

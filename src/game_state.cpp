@@ -17,6 +17,7 @@ std::vector<Point> GetDestinations(const Level& level) {
 };
 
 void LoadLevel(const Level& level, GameState& state) {
+    state.level_state = LevelState::Active;
     state.levelConfiguration = level;
     state.boxPositions = level.boxes;
     state.destinations = GetDestinations(level);

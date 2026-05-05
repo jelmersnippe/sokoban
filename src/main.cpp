@@ -65,7 +65,7 @@ void HandleInput(GameState& state) {
 
 int main() {
     GameState state;
-    state.scene = Scene::LevelSelect;
+    state.scene = Scene::Menu;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
     SetExitKey(KEY_NULL);

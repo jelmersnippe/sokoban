@@ -19,7 +19,7 @@ struct GameState {
 
     Point desiredMove = {.x = 0, .y = 0};
     Scene scene = Scene::Menu;
-    LevelState level_state = LevelState::Active;
+    LevelState level_state = LevelState::Finished;
 
     bool should_exit = false;
 };
