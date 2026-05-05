@@ -8,6 +8,7 @@
 const int BUTTON_HEIGHT = 40;
 const int BUTTON_WIDTH = 200;
 const int BUTTON_GAP = 50;
+const int FONT_SIZE = 20;
 
 const Point BUTTON_POS = {.x = SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, .y = SCREEN_HEIGHT / 2 - BUTTON_HEIGHT / 2};
 const Rectangle level_select_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x),
@@ -31,7 +32,9 @@ void draw_button(const Rectangle& rect, const char* text) {
     DrawRectangleRec(rect, button_background);
     DrawRectangleLinesEx(rect, 5, BLACK);
 
-    DrawText(text, rect.x, rect.y, 20, RED);
+    int text_width = MeasureText(text, FONT_SIZE);
+    DrawText(text, rect.x + (rect.width / 2) - (text_width / 2), rect.y + (rect.height / 2) - (FONT_SIZE / 2),
+             FONT_SIZE, RED);
 }
 
 void UpdateMenuScene(GameState& state) {}
