@@ -20,6 +20,8 @@ struct GameState {
     Point desiredMove = {.x = 0, .y = 0};
     Scene scene = Scene::Menu;
     LevelState level_state = LevelState::Active;
+
+    bool should_exit = false;
 };
 
 void LoadLevel(const Level& level, GameState& state);

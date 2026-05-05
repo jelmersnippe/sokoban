@@ -30,6 +30,8 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/game_state.cpp
     src/level/level_loader.cpp
     src/scenes/level_scene.cpp
+    src/scenes/menu_scene.cpp
+    src/scenes/level_select_scene.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
