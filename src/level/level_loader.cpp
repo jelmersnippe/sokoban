@@ -1,6 +1,7 @@
 #include "raylib.h"
 
 #include "level_loader.hpp"
+#include <algorithm>
 #include <cstdio>
 #include <filesystem>
 #include <iostream>
@@ -101,8 +102,7 @@ Level parse_level_file(const std::string& filename) {
     return level;
 }
 
-std::vector<Level> LoadLevels() {
-    std::vector<Level> levels;
+void load_levels() {
     const std::filesystem::path target_path{"res/levels"};
 
     try {
@@ -110,10 +110,11 @@ std::vector<Level> LoadLevels() {
             if (!std::filesystem::is_regular_file(dir_entry.path())) { continue; }
 
             levels.push_back(parse_level_file(dir_entry.path().string()));
+            std::cout << "Pushed level " << dir_entry.path().filename().string() << std::endl;
         }
     } catch (std::filesystem::filesystem_error const& ex) {
         std::cout << "Error occured during file operation!\n" << ex.what() << std::endl;
     }
 
-    return levels;
+    std::ranges::sort(levels, std::ranges::less{}, &Level::index);
 }

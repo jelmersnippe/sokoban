@@ -31,26 +31,15 @@ const Rectangle quit_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x)
                                            .width = BUTTON_WIDTH,
                                            .height = BUTTON_HEIGHT};
 
-void draw_button(const Rectangle& rect, const char* text) {
-    const Color button_background = mouse_in_rect(rect) ? DARKGRAY : LIGHTGRAY;
-
-    DrawRectangleRec(rect, button_background);
-    DrawRectangleLinesEx(rect, 5, BLACK);
-
-    int text_width = MeasureText(text, FONT_SIZE);
-    DrawText(text, rect.x + (rect.width / 2) - (text_width / 2), rect.y + (rect.height / 2) - (FONT_SIZE / 2),
-             FONT_SIZE, RED);
-}
-
 void UpdateMenuScene(GameState& state) {}
 
 void DrawMenuScene(const GameState& state) {
     ClearBackground(WHITE);
 
-    draw_button(level_select_rectangle, "Level Select");
-    draw_button(game_rectangle, "Game");
-    draw_button(test_rectangle, "Test");
-    draw_button(quit_rectangle, "Quit");
+    draw_button(level_select_rectangle, "Level Select", FONT_SIZE);
+    draw_button(game_rectangle, "Game", FONT_SIZE);
+    draw_button(test_rectangle, "Test", FONT_SIZE);
+    draw_button(quit_rectangle, "Quit", FONT_SIZE);
 }
 
 void HandleMenuSceneInput(GameState& state) {

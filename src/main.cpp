@@ -75,15 +75,15 @@ void HandleInput(GameState& state) {
 }
 
 int main() {
-    GameState state;
-    state.scene = Scene::Menu;
-
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
-
-    load_sprites();
+    SetTargetFPS(TARGET_FPS);
     SetExitKey(KEY_NULL);
 
-    SetTargetFPS(TARGET_FPS);
+    load_levels();
+    load_sprites();
+
+    GameState state;
+    state.scene = Scene::Menu;
 
     while (!state.should_exit && !WindowShouldClose()) {
         HandleInput(state);

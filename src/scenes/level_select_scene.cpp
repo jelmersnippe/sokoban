@@ -1,13 +1,11 @@
+#include "core/globals.hpp"
 #include "core/utils.hpp"
 #include "game_state.hpp"
+#include "level/level_loader.hpp"
 #include "raylib.h"
-#include <algorithm>
 #include <string>
 
-static std::vector<Level> levels;
-static std::vector<Rectangle> level_positions;
-
-const Vector2 LEVEL_IMAGE_SIZE = Vector2{.x = 100.0, .y = 50.0};
+const int FONT_SIZE = 30;
 
 Rectangle get_destination_rect(const Texture2D texture, const Vector2 size) {
     auto texW = static_cast<float>(texture.width);
@@ -41,62 +39,62 @@ Rectangle get_destination_rect(const Texture2D texture, const Vector2 size) {
     return Rectangle{.x = posX, .y = posY, .width = drawW, .height = drawH};
 }
 
-void UpdateLevelSelectScene(GameState& state) {
-    if (!levels.empty()) return;
-
-    levels = LoadLevels();
-    std::ranges::sort(levels, std::ranges::less{}, &Level::index);
-
-    int i = 0;
-    for (const Level& level : levels) {
-
-        auto dest_rect = get_destination_rect(level.texture, LEVEL_IMAGE_SIZE);
-        auto dest_rect_with_pos = Rectangle{.x = 50 + (200 * i) + dest_rect.x,
-                                            .y = 50 + dest_rect.y,
-                                            .width = dest_rect.width,
-                                            .height = dest_rect.height};
-        level_positions.push_back(dest_rect_with_pos);
-
-        i++;
-    }
-}
+void UpdateLevelSelectScene(GameState& state) {}
 
 void DrawLevelSelectScene(const GameState& state) {
     ClearBackground(WHITE);
 
-    int i = 0;
-    // TODO: Parse this AI poop
-    for (const Level& level : levels) {
-        auto dest_rect = level_positions[i];
+    if (state.level_selection_index >= levels.size()) return;
 
-        DrawTexturePro(level.texture,
-                       Rectangle{.x = 0,
-                                 .y = 0,
-                                 .width = static_cast<float>(level.texture.width),
-                                 .height = static_cast<float>(level.texture.height)},
-                       dest_rect, Vector2{.x = 0, .y = 0}, 0.0f, WHITE);
-        DrawText(("Level " + std::to_string(i + 1)).c_str(), dest_rect.x, dest_rect.y + dest_rect.height + 10, 14,
-                 BLACK);
-        i++;
-    }
+    const Level level = levels[state.level_selection_index];
+
+    const Vector2 level_image_size = Vector2{.x = SCREEN_WIDTH * 0.6, .y = SCREEN_HEIGHT * 0.6};
+    const Rectangle dest_rect = get_destination_rect(level.texture, level_image_size);
+    const Vector2 position = {.x = static_cast<float>((SCREEN_WIDTH - level_image_size.x) / 2.0 + dest_rect.x),
+                              .y = static_cast<float>((SCREEN_HEIGHT - level_image_size.y) / 2.0 + dest_rect.y)};
+
+    DrawTexturePro(level.texture,
+                   Rectangle{.x = 0,
+                             .y = 0,
+                             .width = static_cast<float>(level.texture.width),
+                             .height = static_cast<float>(level.texture.height)},
+                   Rectangle{.x = position.x, .y = position.y, .width = dest_rect.width, .height = dest_rect.height},
+                   Vector2{.x = 0, .y = 0}, 0.0f, WHITE);
+
+    // TODO: HOok up functionality
+    draw_button(Rectangle{.x = SCREEN_WIDTH / 2 - 150,
+                          .y = position.y + level_image_size.y + (FONT_SIZE / 2),
+                          .width = 50,
+                          .height = FONT_SIZE},
+                "<", FONT_SIZE);
+
+    const std::string level_name = "Level " + std::to_string(level.index + 1);
+
+    int text_width = MeasureText(level_name.c_str(), FONT_SIZE);
+    DrawText(level_name.c_str(), (SCREEN_WIDTH / 2.0) - (text_width / 2),
+             position.y + level_image_size.y + FONT_SIZE - (FONT_SIZE / 2), FONT_SIZE, BLACK);
+
+    // TODO: HOok up functionality
+    draw_button(Rectangle{.x = SCREEN_WIDTH / 2 + 100,
+                          .y = position.y + level_image_size.y + (FONT_SIZE / 2),
+                          .width = 50,
+                          .height = FONT_SIZE},
+                ">", FONT_SIZE);
 }
 
 void HandleLevelSelectSceneInput(GameState& state) {
     if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) { return; }
 
-    int i = 0;
-    for (const Rectangle& rect : level_positions) {
-        if (!mouse_in_rect(rect)) {
-            i++;
-            continue;
-        };
+    if (state.level_selection_index >= levels.size()) return;
 
-        const auto it = std::ranges::find_if(levels, [i](const Level& level) { return level.index == i; });
+    const Level level = levels[state.level_selection_index];
 
-        LoadLevel(*it, state);
+    const Rectangle dest_rect =
+        get_destination_rect(level.texture, Vector2{.x = SCREEN_WIDTH * 0.6, .y = SCREEN_HEIGHT * 0.6});
 
-        state.scene = Scene::Level;
+    if (!mouse_in_rect(dest_rect)) return;
 
-        break;
-    }
+    LoadLevel(level, state);
+
+    state.scene = Scene::Level;
 }

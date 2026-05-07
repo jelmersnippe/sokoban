@@ -1,11 +1,14 @@
+#pragma once
+
 #include "raylib.h"
 
 #include <cstring>
 #include <string>
 #include <unordered_map>
 
-static std::unordered_map<std::string, Texture2D> sprites;
+inline std::unordered_map<std::string, Texture2D> sprites;
 
 void load_sprites();
+// TODO: Unload sprites
 
 Texture2D get_sprite(const std::string& sprite_name);

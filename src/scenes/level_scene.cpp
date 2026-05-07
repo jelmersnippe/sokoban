@@ -17,13 +17,6 @@ enum class OccupiedType {
 
 constexpr int TILE_SIZE = 50;
 
-constexpr Color WALL_COLOR = {.r = 90, .g = 90, .b = 90, .a = 255};
-constexpr Color FLOOR_COLOR = {.r = 170, .g = 150, .b = 100, .a = 255};
-constexpr Color BOX_COLOR = {.r = 185, .g = 115, .b = 40, .a = 255};
-constexpr Color BOX_ON_DESTINATION_COLOR = {.r = 85, .g = 55, .b = 20, .a = 255};
-constexpr Color DESTINATION_COLOR = RED;
-constexpr Color PLAYER_COLOR = GREEN;
-
 std::vector<std::vector<OccupiedType>> GetOccupiedGrid(const Level& level, const std::vector<Point>& boxes) {
     std::vector<std::vector<OccupiedType>> occupiedGrid(
         level.size.height, std::vector<OccupiedType>(level.size.width, OccupiedType::None));
@@ -87,13 +80,14 @@ void UpdateLevelScene(GameState& state) {
 }
 
 void DrawLevelScene(const GameState& state) {
-    ClearBackground(FLOOR_COLOR);
+    ClearBackground(WHITE);
 
     if (state.level_state == LevelState::Finished) {
         DrawText("You did it!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, BLACK);
         return;
     }
 
+    // TODO: Center level
     for (size_t y = 0; y < state.levelConfiguration.layout.size(); y++) {
         const std::vector<FloorType> row = state.levelConfiguration.layout[y];
 

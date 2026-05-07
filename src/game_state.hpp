@@ -22,6 +22,7 @@ struct GameState {
     LevelState level_state = LevelState::Finished;
 
     bool should_exit = false;
+    int level_selection_index = 0;
 };
 
 void LoadLevel(const Level& level, GameState& state);
