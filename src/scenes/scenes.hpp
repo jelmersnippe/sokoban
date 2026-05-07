@@ -3,5 +3,6 @@
 enum class Scene {
     Menu,
     LevelSelect,
-    Level
+    Level,
+    Test
 };

@@ -5,6 +5,7 @@
 #include "scenes/level_select_scene.hpp"
 #include "scenes/menu_scene.hpp"
 #include "scenes/scenes.hpp"
+#include "scenes/test_scene.hpp"
 
 void Update(GameState& state) {
     state.timeSinceLastTick += GetFrameTime();
@@ -19,6 +20,9 @@ void Update(GameState& state) {
                 break;
             case Scene::Level:
                 UpdateLevelScene(state);
+                break;
+            case Scene::Test:
+                UpdateTestScene(state);
                 break;
         }
 
@@ -39,6 +43,9 @@ void Draw(const GameState& state) {
         case Scene::Level:
             DrawLevelScene(state);
             break;
+        case Scene::Test:
+            DrawTestScene(state);
+            break;
     }
 
     EndDrawing();
@@ -58,6 +65,9 @@ void HandleInput(GameState& state) {
             HandleMenuSceneInput(state);
             break;
         case Scene::Level:
+            HandleLevelSceneInput(state);
+            break;
+        case Scene::Test:
             HandleLevelSceneInput(state);
             break;
     }

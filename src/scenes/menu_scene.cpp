@@ -21,8 +21,13 @@ const Rectangle game_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x)
                                            .width = BUTTON_WIDTH,
                                            .height = BUTTON_HEIGHT};
 
-const Rectangle quit_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x),
+const Rectangle test_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x),
                                            .y = static_cast<float>(BUTTON_POS.y + (BUTTON_HEIGHT + BUTTON_GAP) * 2),
+                                           .width = BUTTON_WIDTH,
+                                           .height = BUTTON_HEIGHT};
+
+const Rectangle quit_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x),
+                                           .y = static_cast<float>(BUTTON_POS.y + (BUTTON_HEIGHT + BUTTON_GAP) * 3),
                                            .width = BUTTON_WIDTH,
                                            .height = BUTTON_HEIGHT};
 
@@ -44,6 +49,7 @@ void DrawMenuScene(const GameState& state) {
 
     draw_button(level_select_rectangle, "Level Select");
     draw_button(game_rectangle, "Game");
+    draw_button(test_rectangle, "Test");
     draw_button(quit_rectangle, "Quit");
 }
 
@@ -53,6 +59,8 @@ void HandleMenuSceneInput(GameState& state) {
             state.scene = Scene::LevelSelect;
         } else if (mouse_in_rect(game_rectangle)) {
             state.scene = state.level_state == LevelState::Finished ? Scene::LevelSelect : Scene::Level;
+        } else if (mouse_in_rect(test_rectangle)) {
+            state.scene = Scene::Test;
         } else if (mouse_in_rect(quit_rectangle)) {
             state.should_exit = true;
         }
