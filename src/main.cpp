@@ -1,3 +1,4 @@
+#include "core/asset_manager.hpp"
 #include "core/globals.hpp"
 #include "game_state.hpp"
 #include "raylib.h"
@@ -74,6 +75,8 @@ void HandleInput(GameState& state) {
 }
 
 int main() {
+    load_sprites();
+
     GameState state;
     state.scene = Scene::Menu;
 

@@ -1,5 +1,6 @@
 #include "core/point.hpp"
 
+#include "core/asset_manager.hpp"
 #include "core/globals.hpp"
 #include "game_state.hpp"
 #include "level/level_loader.hpp"
@@ -98,25 +99,68 @@ void DrawLevelScene(const GameState& state) {
 
         for (size_t x = 0; x < row.size(); x++) {
             switch (row[x]) {
-                case FloorType::Solid:
-                    DrawRectangle(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, WALL_COLOR);
+                case FloorType::Solid: {
+
+                    const Texture2D sprite = get_sprite("wall");
+                    DrawTexturePro(sprite,
+                                   Rectangle{.x = 0,
+                                             .y = 0,
+                                             .width = static_cast<float>(sprite.width),
+                                             .height = static_cast<float>(sprite.height)},
+                                   Rectangle{.x = static_cast<float>(x * TILE_SIZE),
+                                             .y = static_cast<float>(y * TILE_SIZE),
+                                             .width = TILE_SIZE,
+                                             .height = TILE_SIZE},
+                                   Vector2{.x = 0, .y = 0}, 0, WHITE);
                     break;
-                case FloorType::Destination:
-                    DrawCircle((x * TILE_SIZE) + (TILE_SIZE / 2), (y * TILE_SIZE) + (TILE_SIZE / 2), TILE_SIZE / 5.0,
-                               DESTINATION_COLOR);
+                }
+                case FloorType::Destination: {
+                    const Texture2D sprite = get_sprite("destination");
+                    DrawTexturePro(sprite,
+                                   Rectangle{.x = 0,
+                                             .y = 0,
+                                             .width = static_cast<float>(sprite.width),
+                                             .height = static_cast<float>(sprite.height)},
+                                   Rectangle{.x = static_cast<float>(x * TILE_SIZE),
+                                             .y = static_cast<float>(y * TILE_SIZE),
+                                             .width = TILE_SIZE,
+                                             .height = TILE_SIZE},
+                                   Vector2{.x = 0, .y = 0}, 0, WHITE);
                     break;
+                }
                 default:
+                    const Texture2D sprite = get_sprite("floor");
+                    DrawTexturePro(sprite,
+                                   Rectangle{.x = 0,
+                                             .y = 0,
+                                             .width = static_cast<float>(sprite.width),
+                                             .height = static_cast<float>(sprite.height)},
+                                   Rectangle{.x = static_cast<float>(x * TILE_SIZE),
+                                             .y = static_cast<float>(y * TILE_SIZE),
+                                             .width = TILE_SIZE,
+                                             .height = TILE_SIZE},
+                                   Vector2{.x = 0, .y = 0}, 0, WHITE);
                     break;
             }
         }
     }
 
     for (Point position : state.boxPositions) {
-        Color boxColor = BOX_COLOR;
+        const Texture2D sprite = get_sprite("box");
         if (state.levelConfiguration.layout[position.y][position.x] == FloorType::Destination) {
-            boxColor = BOX_ON_DESTINATION_COLOR;
+            // TODO: Load box_on_destination
         }
-        DrawRectangle(position.x * TILE_SIZE, position.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, boxColor);
+
+        DrawTexture(sprite, position.x * TILE_SIZE, position.y * TILE_SIZE, WHITE);
+        DrawTexturePro(
+            sprite,
+            Rectangle{
+                .x = 0, .y = 0, .width = static_cast<float>(sprite.width), .height = static_cast<float>(sprite.height)},
+            Rectangle{.x = static_cast<float>(position.x * TILE_SIZE),
+                      .y = static_cast<float>(position.y * TILE_SIZE),
+                      .width = TILE_SIZE,
+                      .height = TILE_SIZE},
+            Vector2{.x = 0, .y = 0}, 0, WHITE);
     }
 
     DrawRectangle(state.playerPosition.x * TILE_SIZE, state.playerPosition.y * TILE_SIZE, TILE_SIZE, TILE_SIZE,
