@@ -19,8 +19,6 @@ std::vector<Point> GetDestinations(const Level& level) {
 };
 
 void change_scene(GameState& state, const Scene& scene) {
-    if (state.scene == scene) return;
-
     state.scene = scene;
 
     // TODO: Scene stack -> move scene stuff into Scene struct instead of manual disposing in game state

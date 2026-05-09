@@ -4,7 +4,6 @@
 #include "level/level_loader.hpp"
 #include "raylib.h"
 #include "scenes/scenes.hpp"
-#include <iostream>
 #include <string>
 
 const int FONT_SIZE = 30;
@@ -109,15 +108,9 @@ void DrawLevelSelectScene(const GameState& state) {
 void HandleLevelSelectSceneInput(GameState& state) {
     if (!IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) { return; }
 
-    std::cout << "Clicked in level select" << std::endl;
-
     if (state.level_selection_index >= levels.size()) return;
 
-    std::cout << "Valid level index" << std::endl;
-
     if (!point_in_rect(GetMousePosition(), level_display_box)) return;
-
-    std::cout << "Click on level" << std::endl;
 
     const Level level = levels[state.level_selection_index];
     LoadLevel(level, state);

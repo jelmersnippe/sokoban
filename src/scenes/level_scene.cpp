@@ -46,6 +46,17 @@ void UpdateLevelScene(GameState& state) {
             });
         })) {
         state.level_state = LevelState::Finished;
+
+        if (state.level_configuration.index < levels.size() - 1) {
+            state.buttons.push_back(
+                Button{.rect = {.x = SCREEN_WIDTH / 2 - 100, .y = SCREEN_HEIGHT / 2 + 100, .width = 200, .height = 50},
+                       .text = "Next level",
+                       .font_size = 20,
+                       .on_click = [](GameState& state) {
+                           change_scene(state, Scene::Level);
+                           LoadLevel(levels[state.level_configuration.index + 1], state);
+                       }});
+        }
         return;
     }
 
@@ -84,7 +95,8 @@ void DrawLevelScene(const GameState& state) {
     ClearBackground(WHITE);
 
     if (state.level_state == LevelState::Finished) {
-        DrawText("You did it!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 20, BLACK);
+        const int width = MeasureText("You did it!", 20);
+        DrawText("You did it!", SCREEN_WIDTH / 2 - width / 2, SCREEN_HEIGHT / 2, 20, BLACK);
         return;
     }
 
@@ -92,7 +104,6 @@ void DrawLevelScene(const GameState& state) {
     const int offset_y = (SCREEN_HEIGHT / 2) - (state.level_configuration.size.height * TILE_SIZE / 2);
     const Vector2 offset = {.x = static_cast<float>(offset_x), .y = static_cast<float>(offset_y)};
 
-    // TODO: Center level
     for (size_t y = 0; y < state.level_configuration.layout.size(); y++) {
         const std::vector<FloorType> row = state.level_configuration.layout[y];
 
