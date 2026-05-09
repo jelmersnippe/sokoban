@@ -2,6 +2,7 @@
 #include "core/globals.hpp"
 #include "core/utils.hpp"
 #include "game_state.hpp"
+#include "level/level_loader.hpp"
 #include "raylib.h"
 #include "scenes/level_scene.hpp"
 #include "scenes/level_select_scene.hpp"
@@ -110,6 +111,9 @@ int main() {
 
         Draw(state);
     }
+
+    unload_sprites();
+    unload_levels();
 
     CloseWindow();
 

@@ -118,3 +118,9 @@ void load_levels() {
 
     std::ranges::sort(levels, std::ranges::less{}, &Level::index);
 }
+
+void unload_levels() {
+    for (Level& level : levels) {
+        UnloadTexture(level.texture);
+    }
+}

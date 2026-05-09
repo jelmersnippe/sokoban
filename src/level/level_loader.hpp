@@ -27,4 +27,4 @@ struct Level {
 inline std::vector<Level> levels;
 
 void load_levels();
-// TODO: Unload level textures
+void unload_levels();

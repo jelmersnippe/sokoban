@@ -27,6 +27,12 @@ void load_sprites() {
     }
 }
 
+void unload_sprites() {
+    for (auto [_, sprite] : sprites) {
+        UnloadTexture(sprite);
+    }
+}
+
 Texture2D get_sprite(const std::string& sprite_name) {
     return sprites.find(sprite_name)->second;
 }

@@ -9,6 +9,6 @@
 inline std::unordered_map<std::string, Texture2D> sprites;
 
 void load_sprites();
-// TODO: Unload sprites
+void unload_sprites();
 
 Texture2D get_sprite(const std::string& sprite_name);
