@@ -20,6 +20,8 @@ void load_sprites() {
             const Texture2D texture = LoadTextureFromImage(image);
             UnloadImage(image);
 
+            std::cout << "Loaded sprite: " << sprite_name << std::endl;
+
             sprites.insert(std::make_pair(sprite_name, texture));
         }
     } catch (std::filesystem::filesystem_error const& ex) {
@@ -28,9 +30,41 @@ void load_sprites() {
 }
 
 void unload_sprites() {
-    std::cout << "Fucka me!" << std::endl;
+    for (const auto& [_, texture] : sprites) {
+        UnloadTexture(texture);
+    }
 }
 
 Texture2D get_sprite(const std::string& sprite_name) {
     return sprites.find(sprite_name)->second;
+}
+
+void load_sounds() {
+    const std::filesystem::path target_path{"res/sounds"};
+
+    try {
+        for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator{target_path}) {
+            if (!std::filesystem::is_regular_file(dir_entry.path())) { continue; }
+
+            const std::string sound_name = dir_entry.path().stem().string();
+
+            const Sound sound = LoadSound(dir_entry.path().string().data());
+
+            std::cout << "Loaded sound: " << sound_name << std::endl;
+
+            sounds.insert(std::make_pair(sound_name, sound));
+        }
+    } catch (std::filesystem::filesystem_error const& ex) {
+        std::cout << "Error occured during file operation!\n" << ex.what() << std::endl;
+    }
+}
+
+void unload_sounds() {
+    for (const auto& [_, sound] : sounds) {
+        UnloadSound(sound);
+    }
+}
+
+Sound get_sound(const std::string& sound_name) {
+    return sounds.find(sound_name)->second;
 }

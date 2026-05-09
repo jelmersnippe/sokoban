@@ -69,6 +69,8 @@ void HandleInput(GameState& state) {
         for (const Button& button : state.buttons) {
             if (!point_in_rect(mouse_pos, button.rect)) continue;
 
+            PlaySound(get_sound("menu_click"));
+
             button.on_click(state);
             // Button can change Scene, which then updates in the same tick.
             // Meaning you could get a click-through (IsMouseButtonPressed is still true) on the new scene.
@@ -95,11 +97,13 @@ void HandleInput(GameState& state) {
 
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sokoban");
+    InitAudioDevice();
     SetTargetFPS(TARGET_FPS);
     SetExitKey(KEY_NULL);
 
     load_levels();
     load_sprites();
+    load_sounds();
 
     GameState state;
     change_scene(state, Scene::Menu);
@@ -112,9 +116,11 @@ int main() {
         Draw(state);
     }
 
+    unload_sounds();
     unload_sprites();
     unload_levels();
 
+    CloseAudioDevice();
     CloseWindow();
 
     return 0;

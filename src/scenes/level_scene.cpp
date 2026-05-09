@@ -45,6 +45,7 @@ void UpdateLevelScene(GameState& state) {
                 return box.x == destination.x && box.y == destination.y;
             });
         })) {
+        PlaySound(get_sound("celebrate"));
         state.level_state = LevelState::Finished;
 
         if (state.level_configuration.index < levels.size() - 1) {
@@ -68,6 +69,7 @@ void UpdateLevelScene(GameState& state) {
 
     switch (occupiedGrid[desiredPosition.y][desiredPosition.x]) {
         case OccupiedType::None:
+            PlaySound(get_sound("walk"));
             state.playerPosition = desiredPosition;
             break;
         case OccupiedType::Box: {
@@ -81,10 +83,19 @@ void UpdateLevelScene(GameState& state) {
                 box->x = boxPushPosition.x;
                 box->y = boxPushPosition.y;
                 state.playerPosition = desiredPosition;
+
+                PlaySound(get_sound("box_push"));
+
+                if (state.level_configuration.layout[boxPushPosition.y][boxPushPosition.y] == FloorType::Destination) {
+                    PlaySound(get_sound("box_connect"));
+                }
+            } else {
+                PlaySound(get_sound("fail"));
             }
             break;
         }
         case OccupiedType::Wall:
+            PlaySound(get_sound("fail"));
             break;
     }
 
@@ -188,5 +199,8 @@ void HandleLevelSceneInput(GameState& state) {
         state.desiredMove = {.x = -1, .y = 0};
     }
 
-    if (IsKeyPressed(KEY_R)) { LoadLevel(state.level_configuration, state); };
+    if (IsKeyPressed(KEY_R)) {
+        PlaySound(get_sound("fail"));
+        LoadLevel(state.level_configuration, state);
+    };
 }
