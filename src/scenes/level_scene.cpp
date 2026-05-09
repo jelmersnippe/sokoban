@@ -49,7 +49,8 @@ void UpdateLevelScene(GameState& state) {
         return;
     }
 
-    std::vector<std::vector<OccupiedType>> occupiedGrid = GetOccupiedGrid(state.levelConfiguration, state.boxPositions);
+    std::vector<std::vector<OccupiedType>> occupiedGrid =
+        GetOccupiedGrid(state.level_configuration, state.boxPositions);
 
     Point desiredPosition = {.x = state.playerPosition.x + state.desiredMove.x,
                              .y = state.playerPosition.y + state.desiredMove.y};
@@ -87,9 +88,13 @@ void DrawLevelScene(const GameState& state) {
         return;
     }
 
+    const int offset_x = (SCREEN_WIDTH / 2) - (state.level_configuration.size.width * TILE_SIZE / 2);
+    const int offset_y = (SCREEN_HEIGHT / 2) - (state.level_configuration.size.height * TILE_SIZE / 2);
+    const Vector2 offset = {.x = static_cast<float>(offset_x), .y = static_cast<float>(offset_y)};
+
     // TODO: Center level
-    for (size_t y = 0; y < state.levelConfiguration.layout.size(); y++) {
-        const std::vector<FloorType> row = state.levelConfiguration.layout[y];
+    for (size_t y = 0; y < state.level_configuration.layout.size(); y++) {
+        const std::vector<FloorType> row = state.level_configuration.layout[y];
 
         for (size_t x = 0; x < row.size(); x++) {
             Texture2D sprite;
@@ -112,8 +117,8 @@ void DrawLevelScene(const GameState& state) {
                                      .y = 0,
                                      .width = static_cast<float>(sprite.width),
                                      .height = static_cast<float>(sprite.height)},
-                           Rectangle{.x = static_cast<float>(x * TILE_SIZE),
-                                     .y = static_cast<float>(y * TILE_SIZE),
+                           Rectangle{.x = static_cast<float>(x * TILE_SIZE) + offset.x,
+                                     .y = static_cast<float>(y * TILE_SIZE) + offset.y,
                                      .width = TILE_SIZE,
                                      .height = TILE_SIZE},
                            Vector2{.x = 0, .y = 0}, 0, WHITE);
@@ -122,7 +127,7 @@ void DrawLevelScene(const GameState& state) {
 
     for (Point position : state.boxPositions) {
         Texture2D sprite = get_sprite("box");
-        if (state.levelConfiguration.layout[position.y][position.x] == FloorType::Destination) {
+        if (state.level_configuration.layout[position.y][position.x] == FloorType::Destination) {
             sprite = get_sprite("box_on_destination");
         }
 
@@ -130,8 +135,8 @@ void DrawLevelScene(const GameState& state) {
             sprite,
             Rectangle{
                 .x = 0, .y = 0, .width = static_cast<float>(sprite.width), .height = static_cast<float>(sprite.height)},
-            Rectangle{.x = static_cast<float>(position.x * TILE_SIZE),
-                      .y = static_cast<float>(position.y * TILE_SIZE),
+            Rectangle{.x = static_cast<float>(position.x * TILE_SIZE) + offset.x,
+                      .y = static_cast<float>(position.y * TILE_SIZE) + offset.y,
                       .width = TILE_SIZE,
                       .height = TILE_SIZE},
             Vector2{.x = 0, .y = 0}, 0, WHITE);
@@ -142,8 +147,8 @@ void DrawLevelScene(const GameState& state) {
         sprite,
         Rectangle{
             .x = 0, .y = 0, .width = static_cast<float>(sprite.width), .height = static_cast<float>(sprite.height)},
-        Rectangle{.x = static_cast<float>(state.playerPosition.x * TILE_SIZE),
-                  .y = static_cast<float>(state.playerPosition.y * TILE_SIZE),
+        Rectangle{.x = static_cast<float>(state.playerPosition.x * TILE_SIZE) + offset.x,
+                  .y = static_cast<float>(state.playerPosition.y * TILE_SIZE) + offset.y,
                   .width = TILE_SIZE,
                   .height = TILE_SIZE},
         Vector2{.x = 0, .y = 0}, 0, WHITE);
@@ -160,5 +165,5 @@ void HandleLevelSceneInput(GameState& state) {
         state.desiredMove = {.x = -1, .y = 0};
     }
 
-    if (IsKeyPressed(KEY_R)) { LoadLevel(state.levelConfiguration, state); };
+    if (IsKeyPressed(KEY_R)) { LoadLevel(state.level_configuration, state); };
 }

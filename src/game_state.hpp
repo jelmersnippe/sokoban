@@ -13,7 +13,7 @@ enum class LevelState {
 
 struct GameState {
     float timeSinceLastTick = 0;
-    Level levelConfiguration;
+    Level level_configuration;
     std::vector<Point> boxPositions;
     std::vector<Point> destinations;
     Point playerPosition;

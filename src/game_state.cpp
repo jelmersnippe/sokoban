@@ -41,7 +41,7 @@ void change_scene(GameState& state, const Scene& scene) {
 
 void LoadLevel(const Level& level, GameState& state) {
     state.level_state = LevelState::Active;
-    state.levelConfiguration = level;
+    state.level_configuration = level;
     state.boxPositions = level.boxes;
     state.destinations = GetDestinations(level);
     state.playerPosition = level.player;
