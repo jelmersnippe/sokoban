@@ -2,7 +2,6 @@
 
 #include "raylib.h"
 
-#include <cstring>
 #include <string>
 #include <unordered_map>
 

@@ -39,27 +39,7 @@ std::vector<std::vector<OccupiedType>> GetOccupiedGrid(const Level& level, const
 void UpdateLevelScene(GameState& state) {
     if (state.level_state == LevelState::Finished) return;
 
-    // All boxes are on a destination
-    if (std::ranges::all_of(state.boxPositions, [&state](Point& box) {
-            return std::ranges::any_of(state.destinations, [&box](const Point& destination) {
-                return box.x == destination.x && box.y == destination.y;
-            });
-        })) {
-        PlaySound(get_sound("celebrate"));
-        state.level_state = LevelState::Finished;
-
-        if (state.level_configuration.index < levels.size() - 1) {
-            state.buttons.push_back(
-                Button{.rect = {.x = SCREEN_WIDTH / 2 - 100, .y = SCREEN_HEIGHT / 2 + 100, .width = 200, .height = 50},
-                       .text = "Next level",
-                       .font_size = 20,
-                       .on_click = [](GameState& state) {
-                           change_scene(state, Scene::Level);
-                           LoadLevel(levels[state.level_configuration.index + 1], state);
-                       }});
-        }
-        return;
-    }
+    if (state.desiredMove.x == 0 && state.desiredMove.y == 0) { return;}
 
     std::vector<std::vector<OccupiedType>> occupiedGrid =
         GetOccupiedGrid(state.level_configuration, state.boxPositions);
@@ -68,10 +48,12 @@ void UpdateLevelScene(GameState& state) {
                              .y = state.playerPosition.y + state.desiredMove.y};
 
     switch (occupiedGrid[desiredPosition.y][desiredPosition.x]) {
-        case OccupiedType::None:
-            PlaySound(get_sound("walk"));
+        case OccupiedType::None: {
+            const Sound sound = get_sound("walk");
+            PlaySound(sound);
             state.playerPosition = desiredPosition;
             break;
+        }
         case OccupiedType::Box: {
             Point boxPushPosition = {.x = desiredPosition.x + state.desiredMove.x,
                                      .y = desiredPosition.y + state.desiredMove.y};
@@ -84,9 +66,12 @@ void UpdateLevelScene(GameState& state) {
                 box->y = boxPushPosition.y;
                 state.playerPosition = desiredPosition;
 
-                PlaySound(get_sound("box_push"));
+                PlaySound(get_sound("box_move"));
 
-                if (state.level_configuration.layout[boxPushPosition.y][boxPushPosition.y] == FloorType::Destination) {
+                const bool pushed_on_destination = std::ranges::any_of(state.destinations, [&boxPushPosition](const Point& destination) {
+                    return boxPushPosition.x == destination.x && boxPushPosition.y == destination.y;
+                });
+                if (pushed_on_destination) {
                     PlaySound(get_sound("box_connect"));
                 }
             } else {
@@ -100,6 +85,27 @@ void UpdateLevelScene(GameState& state) {
     }
 
     state.desiredMove = {.x = 0, .y = 0};
+
+    const bool all_boxes_on_destination = std::ranges::all_of(state.boxPositions, [&state](Point& box) {
+            return std::ranges::any_of(state.destinations, [&box](const Point& destination) {
+                return box.x == destination.x && box.y == destination.y;
+            });
+        });
+    if (all_boxes_on_destination) {
+        PlaySound(get_sound("celebrate"));
+        state.level_state = LevelState::Finished;
+
+        if (state.level_configuration.index < levels.size() - 1) {
+            state.buttons.push_back(
+                Button{.rect = {.x = SCREEN_WIDTH / 2 - 100, .y = SCREEN_HEIGHT / 2 + 100, .width = 200, .height = 50},
+                       .text = "Next level",
+                       .font_size = 20,
+                       .on_click = [](GameState& state) {
+                           change_scene(state, Scene::Level);
+                           LoadLevel(levels[state.level_configuration.index + 1], state);
+                       }});
+        }
+        }
 }
 
 void DrawLevelScene(const GameState& state) {

@@ -1,7 +1,8 @@
 #include "asset_manager.hpp"
 #include "raylib.h"
+#include "utils.hpp"
 
-#include <cstring>
+#include <cassert>
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -36,7 +37,10 @@ void unload_sprites() {
 }
 
 Texture2D get_sprite(const std::string& sprite_name) {
-    return sprites.find(sprite_name)->second;
+    const auto sprite = sprites.find(sprite_name);
+    ASSERT(sprite != nullptr, "Could not find sprite with name " + sprite_name);
+
+    return sprite->second;
 }
 
 void load_sounds() {
@@ -48,7 +52,9 @@ void load_sounds() {
 
             const std::string sound_name = dir_entry.path().stem().string();
 
-            const Sound sound = LoadSound(dir_entry.path().string().data());
+            const auto path = dir_entry.path().string();
+            const auto path_as_char = path.c_str();
+            const Sound sound = LoadSound(path_as_char);
 
             std::cout << "Loaded sound: " << sound_name << std::endl;
 
@@ -66,5 +72,8 @@ void unload_sounds() {
 }
 
 Sound get_sound(const std::string& sound_name) {
-    return sounds.find(sound_name)->second;
+    const auto sound = sounds.find(sound_name);
+    ASSERT(sound != nullptr, "Could not find sound with name " + sound_name);
+
+    return sound->second;
 }

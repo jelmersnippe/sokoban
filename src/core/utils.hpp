@@ -3,6 +3,12 @@
 #include "raylib.h"
 #include <string>
 
+//Define the macro for assert
+#define ASSERT(condition, message) \
+do { \
+assert(condition && #message); \
+} while (0)
+
 class GameState;
 
 enum class ButtonState {
