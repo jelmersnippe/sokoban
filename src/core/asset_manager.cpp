@@ -14,7 +14,7 @@ void load_sprites() {
         for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator{target_path}) {
             if (!std::filesystem::is_regular_file(dir_entry.path())) { continue; }
 
-            const std::string sprite_name = strtok(dir_entry.path().filename().string().data(), ".");
+            const std::string sprite_name = dir_entry.path().stem().string();
 
             const Image image = LoadImage(dir_entry.path().string().data());
             const Texture2D texture = LoadTextureFromImage(image);
@@ -28,9 +28,7 @@ void load_sprites() {
 }
 
 void unload_sprites() {
-    for (auto [_, sprite] : sprites) {
-        UnloadTexture(sprite);
-    }
+    std::cout << "Fucka me!" << std::endl;
 }
 
 Texture2D get_sprite(const std::string& sprite_name) {

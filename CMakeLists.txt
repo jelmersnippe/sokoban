@@ -29,6 +29,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/main.cpp
     src/game_state.cpp
     src/core/utils.cpp
+    src/core/asset_manager.cpp
     src/level/level_loader.cpp
     src/scenes/level_scene.cpp
     src/scenes/menu_scene.cpp
