@@ -31,27 +31,29 @@ const Rectangle quit_rectangle = Rectangle{.x = static_cast<float>(BUTTON_POS.x)
                                            .width = BUTTON_WIDTH,
                                            .height = BUTTON_HEIGHT};
 
+void InitMenuScene(GameState& state) {
+    state.buttons.push_back(Button{.rect = level_select_rectangle,
+                                   .text = "Level Select",
+                                   .font_size = FONT_SIZE,
+                                   .on_click = [](GameState& state) { change_scene(state, Scene::LevelSelect); }});
+    state.buttons.push_back(
+        Button{.rect = game_rectangle, .text = "Game", .font_size = FONT_SIZE, .on_click = [](GameState& state) {
+                   change_scene(state, Scene::Level);
+               }});
+    state.buttons.push_back(
+        Button{.rect = test_rectangle, .text = "Test", .font_size = FONT_SIZE, .on_click = [](GameState& state) {
+                   change_scene(state, Scene::Test);
+               }});
+    state.buttons.push_back(
+        Button{.rect = quit_rectangle, .text = "Quit", .font_size = FONT_SIZE, .on_click = [](GameState& state) {
+                   state.should_exit = true;
+               }});
+}
+
 void UpdateMenuScene(GameState& state) {}
 
 void DrawMenuScene(const GameState& state) {
     ClearBackground(WHITE);
-
-    draw_button(level_select_rectangle, "Level Select", FONT_SIZE);
-    draw_button(game_rectangle, "Game", FONT_SIZE);
-    draw_button(test_rectangle, "Test", FONT_SIZE);
-    draw_button(quit_rectangle, "Quit", FONT_SIZE);
 }
 
-void HandleMenuSceneInput(GameState& state) {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        if (mouse_in_rect(level_select_rectangle)) {
-            state.scene = Scene::LevelSelect;
-        } else if (mouse_in_rect(game_rectangle)) {
-            state.scene = state.level_state == LevelState::Finished ? Scene::LevelSelect : Scene::Level;
-        } else if (mouse_in_rect(test_rectangle)) {
-            state.scene = Scene::Test;
-        } else if (mouse_in_rect(quit_rectangle)) {
-            state.should_exit = true;
-        }
-    }
-}
+void HandleMenuSceneInput(GameState& state) {}

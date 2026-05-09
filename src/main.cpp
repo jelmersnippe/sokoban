@@ -1,5 +1,6 @@
 #include "core/asset_manager.hpp"
 #include "core/globals.hpp"
+#include "core/utils.hpp"
 #include "game_state.hpp"
 #include "raylib.h"
 #include "scenes/level_scene.hpp"
@@ -49,13 +50,30 @@ void Draw(const GameState& state) {
             break;
     }
 
+    for (const Button& button : state.buttons) {
+        draw_button(button);
+    }
+
     EndDrawing();
 }
 
 void HandleInput(GameState& state) {
     if (IsKeyPressed(KEY_ESCAPE)) {
-        state.scene = Scene::Menu;
+        change_scene(state, Scene::Menu);
         return;
+    }
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        const Vector2 mouse_pos = GetMousePosition();
+        for (const Button& button : state.buttons) {
+            if (!point_in_rect(mouse_pos, button.rect)) continue;
+
+            button.on_click(state);
+            // Button can change Scene, which then updates in the same tick.
+            // Meaning you could get a click-through (IsMouseButtonPressed is still true) on the new scene.
+            // This happens when you go to level select, because the level ui is behind the button.
+            return;
+        }
     }
 
     switch (state.scene) {
@@ -83,7 +101,7 @@ int main() {
     load_sprites();
 
     GameState state;
-    state.scene = Scene::Menu;
+    change_scene(state, Scene::Menu);
 
     while (!state.should_exit && !WindowShouldClose()) {
         HandleInput(state);

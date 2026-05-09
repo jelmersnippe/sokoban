@@ -1,19 +1,18 @@
+#include "utils.hpp"
+
 #include "raylib.h"
 
-bool mouse_in_rect(const Rectangle& rect) {
-    const Vector2 mouse_pos = GetMousePosition();
-
-    return mouse_pos.x > rect.x && mouse_pos.x < rect.x + rect.width && mouse_pos.y > rect.y &&
-           mouse_pos.y < rect.y + rect.height;
+bool point_in_rect(const Vector2& point, const Rectangle& rect) {
+    return point.x > rect.x && point.x < rect.x + rect.width && point.y > rect.y && point.y < rect.y + rect.height;
 }
 
-void draw_button(const Rectangle& rect, const char* text, const int font_size) {
-    const Color button_background = mouse_in_rect(rect) ? DARKGRAY : LIGHTGRAY;
+void draw_button(const Button& button) {
+    const Color button_background = point_in_rect(GetMousePosition(), button.rect) ? DARKGRAY : LIGHTGRAY;
 
-    DrawRectangleRec(rect, button_background);
-    DrawRectangleLinesEx(rect, 5, BLACK);
+    DrawRectangleRec(button.rect, button_background);
+    DrawRectangleLinesEx(button.rect, 5, BLACK);
 
-    int text_width = MeasureText(text, font_size);
-    DrawText(text, rect.x + (rect.width / 2) - (text_width / 2), rect.y + (rect.height / 2) - (font_size / 2),
-             font_size, RED);
+    int text_width = MeasureText(button.text.c_str(), button.font_size);
+    DrawText(button.text.c_str(), button.rect.x + (button.rect.width / 2) - (text_width / 2),
+             button.rect.y + (button.rect.height / 2) - (button.font_size / 2), button.font_size, RED);
 }
