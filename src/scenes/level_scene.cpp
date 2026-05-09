@@ -111,6 +111,13 @@ void DrawLevelScene(const GameState& state) {
             Texture2D sprite;
             switch (row[x]) {
                 case FloorType::Solid: {
+                    // Tile above is also a wall
+                    if (y != state.level_configuration.layout.size() - 1 &&
+                        state.level_configuration.layout[y + 1][x] == FloorType::Solid) {
+                        sprite = get_sprite("wall_2");
+                        break;
+                    }
+
                     sprite = get_sprite("wall");
                     break;
                 }
@@ -119,6 +126,11 @@ void DrawLevelScene(const GameState& state) {
                     break;
                 }
                 default:
+                    // Tile above is also a wall
+                    if (x != row.size() - 1 && row[x + 1] == FloorType::Solid) {
+                        sprite = get_sprite("floor_shadow");
+                        break;
+                    }
                     sprite = get_sprite("floor");
                     break;
             }
